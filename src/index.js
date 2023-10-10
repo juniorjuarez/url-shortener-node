@@ -66,7 +66,7 @@ async function startServer() {
           res.sendStatus(201);
         } else {
           console.log("JSON VAZIO");
-          res.sendStatus(200);
+          res.sendStatus(204);
         }
       } else {
         console.log("JSON inválido ou vazio");
