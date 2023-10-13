@@ -1,11 +1,8 @@
 require("dotenv").config();
-
-const db = require("./db/db");
-
-// Resto do seu código aqui...
+//const urlRoutes = require("./routes/url_routes");
 
 const port = process.env.PORT;
-
+const db = require("./db/db");
 const express = require("express");
 const app = express();
 app.use(express.json());
@@ -17,10 +14,10 @@ async function startServer() {
 
       if (urls.length === 0) {
         console.log("não existem urls para esse id");
-        res.sendStatus(204);
+        res.status(204);
       } else {
-        res.sendStatus(201);
-        console.log(urls);
+        res.status(201).json(urls);
+        // res.json(urls);
       }
     } catch (error) {
       console.log(error.message, "erro na rota get selectUrlsForId");
@@ -31,7 +28,6 @@ async function startServer() {
     app.get("/urls", async (req, res) => {
       const urls = await db.selectAllUrls();
       res.json(urls);
-      console.log(urls);
     });
   } catch (error) {
     console.log("erro na rota get selectAllUrls", error.message);
@@ -43,11 +39,11 @@ async function startServer() {
 
       if (Object.keys(urls).length === 0) {
         console.log("não existem dados para inserir");
-        res.sendStatus(204);
+        res.status(204).send("não existem dados para inserir");
       } else {
         await db.insertUrl(req.body);
         console.log("inserido", req.body);
-        res.sendStatus(201);
+        res.status(201).send("inserido");
       }
     });
   } catch (error) {

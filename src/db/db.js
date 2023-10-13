@@ -29,7 +29,7 @@ connect();
 async function selectAllUrls() {
   try {
     const url = await connect();
-    const res = await url.query("select * from url_shortener");
+    const res = await url.query("select * from url_shortener order by id");
     return res.rows;
   } catch (error) {
     console.log(error.message, "Erro no select");
@@ -64,10 +64,10 @@ async function updateStatus(id, dataUrl) {
   try {
     const url = await connect();
 
-    await url.query("update url_shortener set is_active = $1 where id = $2", [
-      dataUrl.is_active,
-      id,
-    ]);
+    await url.query(
+      "update url_shortener set is_active = $1, updated_at = now() where id = $2",
+      [dataUrl.is_active, id]
+    );
   } catch (error) {
     console.log("Erro no UPDATE de STATUS:", error.message);
   }
