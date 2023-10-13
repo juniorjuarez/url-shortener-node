@@ -2,3 +2,5 @@
 node_modules
 routes.http
 routes
+.eslintrc.json
+.gitignore
