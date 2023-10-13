@@ -10,7 +10,7 @@ app.use(express.json());
 async function startServer() {
   app.get("/urls/:id", async (req, res) => {
     try {
-      urls = await db.selectUrlsForId(req.params.id);
+      const urls = await db.selectUrlsForId(req.params.id);
 
       if (urls.length === 0) {
         console.log("não existem urls para esse id");
@@ -72,6 +72,27 @@ async function startServer() {
   } catch (error) {
     console.log(error.message, "erro na rota put de alterar status");
   }
+
+  app.get("/url/:url", async (req, res) => {
+    try {
+      const url = await db.redirectUrl(req.params.url);
+
+      const { id, is_active, original_url } = url[0];
+
+      if (is_active === true) {
+        await db.addClick(id);
+        console.log(original_url);
+        res.redirect(
+          original_url.includes("http://") || original_url.includes("https://")
+            ? original_url
+            : "http://" + original_url
+        );
+      } else {
+        res.status(204).send("URL Não encontrada").redirect("google.com");
+        console.log(is_active);
+      }
+    } catch (error) {}
+  });
 
   app.listen(port);
 

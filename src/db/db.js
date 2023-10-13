@@ -28,8 +28,8 @@ connect();
 
 async function selectAllUrls() {
   try {
-    const url = await connect();
-    const res = await url.query("select * from url_shortener order by id");
+    const sql = await connect();
+    const res = await sql.query("select * from url_shortener order by id");
     return res.rows;
   } catch (error) {
     console.log(error.message, "Erro no select");
@@ -38,8 +38,8 @@ async function selectAllUrls() {
 
 async function selectUrlsForId(id) {
   try {
-    const url = await connect();
-    const res = await url.query("select * from url_shortener where id=$1", [
+    const sql = await connect();
+    const res = await sql.query("select * from url_shortener where id=$1", [
       id,
     ]);
     return res.rows;
@@ -51,8 +51,8 @@ async function selectUrlsForId(id) {
 async function insertUrl(newUrl) {
   try {
     const shortened_url = randomUUID();
-    const url = await connect();
-    await url.query(
+    const sql = await connect();
+    await sql.query(
       "INSERT INTO url_shortener (original_url, shortened_url, clicks) VALUES ($1, $2, $3)",
       [newUrl.original_url, shortened_url, 0]
     );
@@ -62,9 +62,9 @@ async function insertUrl(newUrl) {
 }
 async function updateStatus(id, dataUrl) {
   try {
-    const url = await connect();
+    const sql = await connect();
 
-    await url.query(
+    await sql.query(
       "update url_shortener set is_active = $1, updated_at = now() where id = $2",
       [dataUrl.is_active, id]
     );
@@ -73,10 +73,35 @@ async function updateStatus(id, dataUrl) {
   }
 }
 
+async function redirectUrl(url) {
+  try {
+    const sql = await connect();
+
+    const res = await sql.query(
+      "select id, original_url, shortened_url, is_active from url_shortener where shortened_url = $1",
+      [url]
+    );
+    return res.rows;
+  } catch (error) {}
+}
+
+async function addClick(id) {
+  try {
+    const sql = await connect();
+
+    await sql.query(
+      "UPDATE url_shortener SET clicks = clicks + 1 WHERE id = $1",
+      [id]
+    );
+  } catch (error) {}
+}
+
 module.exports = {
+  connect,
   selectAllUrls,
   selectUrlsForId,
   insertUrl,
   updateStatus,
-  connect,
+  redirectUrl,
+  addClick,
 };
