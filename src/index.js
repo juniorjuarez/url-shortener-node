@@ -1,6 +1,6 @@
 require("dotenv").config();
 //const urlRoutes = require("./routes/url_routes");
-
+const host = process.env.HOST;
 const port = process.env.PORT;
 const db = require("./db/db");
 const express = require("express");
@@ -17,6 +17,7 @@ async function startServer() {
         res.status(204);
       } else {
         res.status(201).json(urls);
+
         // res.json(urls);
       }
     } catch (error) {
@@ -41,9 +42,10 @@ async function startServer() {
         console.log("não existem dados para inserir");
         res.status(204).send("não existem dados para inserir");
       } else {
-        await db.insertUrl(req.body);
+        const result = await db.insertUrl(req.body);
         console.log("inserido", req.body);
-        res.status(201).send("inserido");
+
+        return res.status(201).json(`${host}${result.shortened_url}`);
       }
     });
   } catch (error) {
@@ -91,7 +93,12 @@ async function startServer() {
         res.status(204).send("URL Não encontrada").redirect("google.com");
         console.log(is_active);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(
+        error.message,
+        "erro na rota GET, que realizar o redirect de URL"
+      );
+    }
   });
 
   app.listen(port);

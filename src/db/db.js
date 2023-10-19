@@ -56,10 +56,17 @@ async function insertUrl(newUrl) {
       "INSERT INTO url_shortener (original_url, shortened_url, clicks) VALUES ($1, $2, $3)",
       [newUrl.original_url, shortened_url, 0]
     );
+    const res = await sql.query(
+      "select shortened_url from url_shortener where is_active = true and shortened_url = $1",
+      [shortened_url]
+    );
+
+    return res.rows[0];
   } catch (error) {
     console.log("Erro no INSERT de URL:", error.message);
   }
 }
+
 async function updateStatus(id, dataUrl) {
   try {
     const sql = await connect();
